@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImposeIt — Imposición para Impresión</title>
+  <meta name="description" content="Herramienta de imposición para montar documentos de impresión con marcas de corte, sangre y presets." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.7"/>
+            <rect x="16" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.7"/>
+            <rect x="2" y="16" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.7"/>
+            <rect x="16" y="16" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.7"/>
+          </svg>
+          <h1>ImposeIt</h1>
+        </div>
+        <p class="subtitle">Imposición para impresión</p>
+      </div>
+
+      <div class="sidebar-scroll">
+        <!-- FILE SECTION -->
+        <section class="panel-section" id="section-file">
+          <div class="section-header" data-toggle="file">
+            <span class="section-icon">📄</span>
+            <span class="section-title">Archivo</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="section-body" id="body-file">
+            <div class="drop-zone" id="drop-zone-front">
+              <input type="file" id="file-input-front" accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff" hidden />
+              <div class="drop-content">
+                <span class="drop-icon">📎</span>
+                <span class="drop-text">Anverso: Arrastra o haz clic</span>
+                <span class="drop-formats">PDF, JPG, PNG, TIF</span>
+              </div>
+            </div>
+            <div id="file-info-front" class="file-info" hidden>
+              <span class="file-name" id="file-name-front"></span>
+              <span class="file-dims" id="file-dims-front"></span>
+              <button class="btn-icon btn-remove" id="remove-front" title="Eliminar">✕</button>
+            </div>
+
+            <!-- Duplex file -->
+            <div id="duplex-file-section" hidden>
+              <div class="drop-zone drop-zone-small" id="drop-zone-back">
+                <input type="file" id="file-input-back" accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff" hidden />
+                <div class="drop-content">
+                  <span class="drop-icon">📎</span>
+                  <span class="drop-text">Reverso: Arrastra o haz clic</span>
+                  <span class="drop-formats">PDF, JPG, PNG, TIF</span>
+                </div>
+              </div>
+              <div id="file-info-back" class="file-info" hidden>
+                <span class="file-name" id="file-name-back"></span>
+                <span class="file-dims" id="file-dims-back"></span>
+                <button class="btn-icon btn-remove" id="remove-back" title="Eliminar">✕</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PAPER SECTION -->
+        <section class="panel-section" id="section-paper">
+          <div class="section-header" data-toggle="paper">
+            <span class="section-icon">📐</span>
+            <span class="section-title">Papel</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="section-body" id="body-paper">
+            <div class="form-group">
+              <label for="paper-size">Tamaño</label>
+              <select id="paper-size" class="select-input">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+
+            <div id="custom-size-group" class="form-row" hidden>
+              <div class="form-group half">
+                <label for="custom-width">Ancho (mm)</label>
+                <input type="number" id="custom-width" class="num-input" value="320" min="50" max="2000" step="0.1" />
+              </div>
+              <div class="form-group half">
+                <label for="custom-height">Alto (mm)</label>
+                <input type="number" id="custom-height" class="num-input" value="450" min="50" max="2000" step="0.1" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Orientación</label>
+              <div class="toggle-group" id="orientation-toggle">
+                <button class="toggle-btn active" data-value="portrait" id="btn-portrait">
+                  <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><rect x="1" y="1" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+                  Vertical
+                </button>
+                <button class="toggle-btn" data-value="landscape" id="btn-landscape">
+                  <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><rect x="1" y="1" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+                  Horizontal
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CROP MARKS SECTION -->
+        <section class="panel-section" id="section-crop">
+          <div class="section-header" data-toggle="crop">
+            <span class="section-icon">✂️</span>
+            <span class="section-title">Corte y sangre</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="section-body" id="body-crop">
+            <div class="form-group">
+              <label class="toggle-label">
+                <span>Marcas de corte</span>
+                <label class="switch">
+                  <input type="checkbox" id="crop-marks-toggle" checked />
+                  <span class="slider"></span>
+                </label>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="bleed-input">Sangre (mm)</label>
+              <input type="number" id="bleed-input" class="num-input" value="3" min="0" max="20" step="0.5" />
+            </div>
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="mark-offset">Separación marca (mm)</label>
+                <input type="number" id="mark-offset" class="num-input" value="2" min="0" max="20" step="0.5" />
+              </div>
+              <div class="form-group half">
+                <label for="mark-length">Largo marca (mm)</label>
+                <input type="number" id="mark-length" class="num-input" value="5" min="1" max="30" step="0.5" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SPACING SECTION -->
+        <section class="panel-section" id="section-spacing">
+          <div class="section-header" data-toggle="spacing">
+            <span class="section-icon">📏</span>
+            <span class="section-title">Espaciado</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="section-body" id="body-spacing">
+            <div class="form-group">
+              <label for="gutter-input">Separación entre copias (mm)</label>
+              <input type="number" id="gutter-input" class="num-input" value="0" min="0" max="50" step="0.5" />
+            </div>
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="margin-h">Margen H (mm)</label>
+                <input type="number" id="margin-h" class="num-input" value="5" min="0" max="100" step="0.5" />
+              </div>
+              <div class="form-group half">
+                <label for="margin-v">Margen V (mm)</label>
+                <input type="number" id="margin-v" class="num-input" value="5" min="0" max="100" step="0.5" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="toggle-label">
+                <span>Rotación automática</span>
+                <label class="switch">
+                  <input type="checkbox" id="auto-rotate-toggle" />
+                  <span class="slider"></span>
+                </label>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRINT SECTION -->
+        <section class="panel-section" id="section-print">
+          <div class="section-header" data-toggle="print">
+            <span class="section-icon">🖨️</span>
+            <span class="section-title">Impresión</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="section-body" id="body-print">
+            <div class="form-group">
+              <label>Caras</label>
+              <div class="toggle-group" id="duplex-toggle">
+                <button class="toggle-btn active" data-value="single" id="btn-single">Cara simple</button>
+                <button class="toggle-btn" data-value="duplex" id="btn-duplex">Doble cara</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRESETS SECTION -->
+        <section class="panel-section" id="section-presets">
+          <div class="section-header" data-toggle="presets">
+            <span class="section-icon">💾</span>
+            <span class="section-title">Presets</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="section-body" id="body-presets">
+            <div class="form-row preset-save-row">
+              <input type="text" id="preset-name" class="text-input" placeholder="Nombre del preset..." />
+              <button class="btn btn-secondary" id="preset-save-btn">Guardar</button>
+            </div>
+            <div id="preset-list" class="preset-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- EXPORT -->
+      <div class="sidebar-footer">
+        <div class="form-group">
+          <input type="text" id="job-name" class="text-input" placeholder="Nombre del trabajo..." value="imposicion" />
+        </div>
+        <button class="btn btn-primary btn-export" id="export-btn" disabled>
+          <span class="btn-icon-left">📤</span>
+          Exportar PDF
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN PREVIEW ===== -->
+    <main id="preview-area" class="preview-area">
+      <div class="preview-toolbar">
+        <div class="preview-info">
+          <span id="info-copies" class="info-badge">0 copias</span>
+          <span id="info-usage" class="info-badge">0% uso</span>
+          <span id="info-grid" class="info-badge">0×0</span>
+        </div>
+        <div class="preview-zoom-controls">
+          <button class="btn-icon" id="zoom-out" title="Alejar">−</button>
+          <span id="zoom-level" class="zoom-label">100%</span>
+          <button class="btn-icon" id="zoom-in" title="Acercar">+</button>
+          <button class="btn-icon" id="zoom-fit" title="Ajustar">⊡</button>
+        </div>
+      </div>
+      <div class="canvas-container" id="canvas-container">
+        <canvas id="preview-canvas"></canvas>
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+              <rect x="8" y="4" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.4"/>
+              <rect x="36" y="4" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.4"/>
+              <rect x="8" y="36" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.4"/>
+              <rect x="36" y="36" width="20" height="24" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.4"/>
+            </svg>
+          </div>
+          <p class="empty-title">Carga un archivo para empezar</p>
+          <p class="empty-subtitle">Arrastra un PDF, JPG, PNG o TIF al panel izquierdo</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
