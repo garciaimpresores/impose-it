@@ -311,6 +311,15 @@ async function handleFile(file, side) {
       refs.dimsFront.textContent = `${loaded.width.toFixed(1)}×${loaded.height.toFixed(1)} mm`;
       refs.dropFront.hidden = true;
       refs.infoFront.hidden = false;
+
+      // Update jobName field to default to front file name without extension
+      let baseName = file.name;
+      const lastDotIndex = baseName.lastIndexOf('.');
+      if (lastDotIndex > 0) {
+        baseName = baseName.substring(0, lastDotIndex);
+      }
+      state.jobName = baseName;
+      refs.jobName.value = baseName;
     } else {
       state.backFile = loaded;
       refs.nameBack.textContent = loaded.name;
